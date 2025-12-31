@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSC English Pie Chart Simulator</title>
+    <title>HSC Chart & Paragraph Simulator</title>
+    <meta property="og:title" content="HSC English Graph & Chart Simulator | Interactive Learning Tool" />
+<meta property="og:description" content="এইচএসসি ইংরেজি ১ম পত্রের Graph & Chart (Q.10/11) প্র্যাকটিস করার জন্য সেরা টুল। ডেটা ইনপুট দিলেই তৈরি হবে চার্ট এবং অটোমেটিক প্যারাগ্রাফ!" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://hsc-english-pie-chart-simulator.vercel.app/" />
+<meta property="og:image" content="https://i.imgur.com/YOUR_IMAGE_LINK.jpg" /> ```
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2c3e50;
-            --accent: #3498db;
+            --accent: #27ae60; /* Color changed to Greenish for freshness */
             --bg: #f4f7f6;
         }
         body {
@@ -19,27 +24,36 @@
             color: #333;
         }
         .container {
-            max-width: 900px;
+            max-width: 950px;
             margin: 0 auto;
             background: white;
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        h2 { text-align: center; color: var(--primary); }
-        .input-group {
+        h2 { text-align: center; color: var(--primary); margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
+        
+        .control-panel {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             justify-content: center;
             flex-wrap: wrap;
+            align-items: center;
         }
-        input {
+        
+        select, input {
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #bdc3c7;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 15px;
         }
+        select { font-weight: bold; color: var(--primary); }
+
         button {
             padding: 10px 20px;
             background-color: var(--primary);
@@ -47,11 +61,12 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             transition: 0.3s;
         }
-        button:hover { background-color: var(--accent); }
+        button:hover { background-color: #34495e; }
         button.reset { background-color: #e74c3c; }
+        button.reset:hover { background-color: #c0392b; }
         
         .main-content {
             display: flex;
@@ -60,72 +75,79 @@
             margin-top: 20px;
         }
         @media (min-width: 768px) {
-            .main-content {
-                flex-direction: row;
-            }
+            .main-content { flex-direction: row; }
         }
+        
         .chart-box {
             flex: 1;
-            position: relative;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .text-box {
             flex: 1;
-            background: #f9f9f9;
+            background: #fff;
             padding: 20px;
+            border: 1px solid #eee;
             border-radius: 8px;
-            border-left: 5px solid var(--accent);
+            border-top: 5px solid var(--accent);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .text-box h3 { margin-top: 0; }
+        .text-box h3 { margin-top: 0; color: var(--primary); }
         #paragraph-output {
-            line-height: 1.6;
+            line-height: 1.8;
             font-size: 16px;
             text-align: justify;
+            color: #444;
         }
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
+        
+        /* Table Styles */
+        .table-container { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
         th { background-color: var(--primary); color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>HSC Pie Chart & Paragraph Simulator</h2>
-    <p style="text-align: center; color: #666;">Enter categories and percentages to generate a chart and description.</p>
+    <h2>HSC Graph & Chart Simulator</h2>
+    <p class="subtitle">Interactive Tool for Economics & English Students</p>
     
-    <div class="input-group">
-        <input type="text" id="labelInput" placeholder="Category (e.g. Dhaka)">
-        <input type="number" id="dataInput" placeholder="Value % (e.g. 40)">
+    <div class="control-panel">
+        <select id="chartType" onchange="renderChart(); generateParagraph();">
+            <option value="pie">Pie Chart</option>
+            <option value="bar">Bar Chart</option>
+        </select>
+        <input type="text" id="labelInput" placeholder="Category (e.g. Literacy Rate)">
+        <input type="number" id="dataInput" placeholder="Value % (e.g. 65)">
         <button onclick="addData()">Add Data</button>
-        <button class="reset" onclick="resetChart()">Reset</button>
+        <button class="reset" onclick="resetChart()">Reset All</button>
     </div>
 
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Percentage (%)</th>
-            </tr>
-        </thead>
-        <tbody>
-            </tbody>
-    </table>
+    <div class="table-container">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Category / Year</th>
+                    <th>Value / Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
 
     <div class="main-content">
         <div class="chart-box">
-            <canvas id="myPieChart"></canvas>
+            <canvas id="myChart"></canvas>
         </div>
 
         <div class="text-box">
             <h3>Generated Description:</h3>
-            <p id="paragraph-output">Add data to see the generated paragraph here...</p>
+            <p id="paragraph-output">Input data to generate the paragraph...</p>
         </div>
     </div>
 </div>
@@ -133,48 +155,67 @@
 <script>
     let labels = [];
     let dataValues = [];
-    let myChart = null;
+    let myChartObj = null;
+    const ctx = document.getElementById('myChart').getContext('2d');
 
-    // Initialize Chart
-    const ctx = document.getElementById('myPieChart').getContext('2d');
+    // Color Palette
+    const colors = [
+        '#3498db', '#e74c3c', '#f1c40f', '#2ecc71', '#9b59b6', '#34495e', '#16a085', '#d35400'
+    ];
 
     function renderChart() {
-        if (myChart) myChart.destroy();
+        // Destroy previous instance to switch types
+        if (myChartObj) myChartObj.destroy();
 
-        myChart = new Chart(ctx, {
-            type: 'pie',
+        const chartType = document.getElementById('chartType').value;
+        
+        // Configuration Logic
+        let chartConfig = {
+            type: chartType,
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Percentage',
+                    label: 'Data Value',
                     data: dataValues,
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
-                    ],
+                    backgroundColor: chartType === 'pie' ? colors : '#3498db', // Single color for bars looks cleaner or array for multi
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'bottom' }
+                    legend: {
+                        display: chartType === 'pie', // Hide legend for bar chart usually
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    // Y-axis is only needed for Bar Chart
+                    y: {
+                        beginAtZero: true,
+                        display: chartType === 'bar'
+                    },
+                    x: {
+                        display: chartType === 'bar'
+                    }
                 }
             }
-        });
+        };
+
+        myChartObj = new Chart(ctx, chartConfig);
     }
 
-    // Add Data Function
     function addData() {
         const label = document.getElementById('labelInput').value;
         const value = parseFloat(document.getElementById('dataInput').value);
 
-        if (label && value) {
+        if (label && !isNaN(value)) {
             labels.push(label);
             dataValues.push(value);
 
-            // Update Table
+            // Add row to table
             const tableBody = document.querySelector('#dataTable tbody');
-            const row = `<tr><td>${label}</td><td>${value}%</td></tr>`;
+            const row = `<tr><td>${label}</td><td>${value}</td></tr>`;
             tableBody.insertAdjacentHTML('beforeend', row);
 
             // Clear inputs
@@ -184,47 +225,53 @@
             renderChart();
             generateParagraph();
         } else {
-            alert("Please enter both category and value.");
+            alert("Please enter valid category and numerical value.");
         }
     }
 
-    // Reset Function
     function resetChart() {
         labels = [];
         dataValues = [];
         document.querySelector('#dataTable tbody').innerHTML = '';
-        document.getElementById('paragraph-output').innerText = 'Add data to see the generated paragraph here...';
-        if (myChart) myChart.destroy();
+        document.getElementById('paragraph-output').innerText = 'Input data to generate the paragraph...';
+        if (myChartObj) myChartObj.destroy();
     }
 
-    // HSC Standard Paragraph Generator Logic
+    // Advanced Paragraph Generator
     function generateParagraph() {
         if (labels.length === 0) return;
 
-        // Find Max and Min for Analysis
+        const chartType = document.getElementById('chartType').value;
+        const chartName = chartType === 'pie' ? "pie chart" : "bar chart";
+        
         let maxVal = Math.max(...dataValues);
         let minVal = Math.min(...dataValues);
         let maxIndex = dataValues.indexOf(maxVal);
         let minIndex = dataValues.indexOf(minVal);
 
-        let topic = "selected categories"; // Default topic
+        // Dynamic Intro based on chart type
+        let text = `The ${chartName} illustrates the comparative data of the selected categories. The data is presented in a structured manner to highlight the variations. <br><br>`;
 
-        // Introduction
-        let text = `The pie chart illustrates the percentage of ${topic}. A survey has been conducted, and the data is presented in percentage form. <br><br>`;
+        // Body Paragraph
+        text += `Analyzing the ${chartName}, it is clearly observed that <strong>${labels[maxIndex]}</strong> holds the highest position with a value of <strong>${maxVal}</strong>. In contrast, <strong>${labels[minIndex]}</strong> represents the lowest figures, standing at only <strong>${minVal}</strong>. This indicates a significant gap between the highest and lowest parameters. <br><br>`;
 
-        // Body Paragraph (Describing Data)
-        text += `According to the chart, the highest percentage is observed in <strong>${labels[maxIndex]}</strong>, which constitutes <strong>${maxVal}%</strong> of the total. On the other hand, the lowest percentage is <strong>${labels[minIndex]}</strong> with only <strong>${minVal}%</strong>. <br><br>`;
-
-        // Describing other data points
-        text += `Analyzing the other sectors, we can see that `;
+        // Details
+        text += `Furthermore, looking at the other data points, `;
+        let otherPoints = [];
         for (let i = 0; i < labels.length; i++) {
             if (i !== maxIndex && i !== minIndex) {
-                text += `<strong>${labels[i]}</strong> occupies <strong>${dataValues[i]}%</strong>, `;
+                otherPoints.push(`<strong>${labels[i]}</strong> accounts for <strong>${dataValues[i]}</strong>`);
             }
         }
         
+        if(otherPoints.length > 0){
+             text += otherPoints.join(', ') + `. These figures show the moderate levels within the dataset. `;
+        } else {
+            text += `there are no other intermediate categories. `;
+        }
+
         // Conclusion
-        text += `In conclusion, it is evident that the majority of the share is held by ${labels[maxIndex]}, while ${labels[minIndex]} remains the least significant sector.`;
+        text += `<br><br>In conclusion, the ${chartName} reveals that ${labels[maxIndex]} dominates the chart, while ${labels[minIndex]} remains the least significant aspect among the given variables.`;
 
         document.getElementById('paragraph-output').innerHTML = text;
     }
