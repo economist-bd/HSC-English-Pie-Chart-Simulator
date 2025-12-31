@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSC English Pie Chart Simulator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 { text-align: center; color: var(--primary); }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover { background-color: var(--accent); }
+        button.reset { background-color: #e74c3c; }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        @media (min-width: 768px) {
+            .main-content {
+                flex-direction: row;
+            }
+        }
+        .chart-box {
+            flex: 1;
+            position: relative;
+        }
+        .text-box {
+            flex: 1;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid var(--accent);
+        }
+        .text-box h3 { margin-top: 0; }
+        #paragraph-output {
+            line-height: 1.6;
+            font-size: 16px;
+            text-align: justify;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th { background-color: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>HSC Pie Chart & Paragraph Simulator</h2>
+    <p style="text-align: center; color: #666;">Enter categories and percentages to generate a chart and description.</p>
+    
+    <div class="input-group">
+        <input type="text" id="labelInput" placeholder="Category (e.g. Dhaka)">
+        <input type="number" id="dataInput" placeholder="Value % (e.g. 40)">
+        <button onclick="addData()">Add Data</button>
+        <button class="reset" onclick="resetChart()">Reset</button>
+    </div>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Percentage (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <div class="main-content">
+        <div class="chart-box">
+            <canvas id="myPieChart"></canvas>
+        </div>
+
+        <div class="text-box">
+            <h3>Generated Description:</h3>
+            <p id="paragraph-output">Add data to see the generated paragraph here...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let labels = [];
+    let dataValues = [];
+    let myChart = null;
+
+    // Initialize Chart
+    const ctx = document.getElementById('myPieChart').getContext('2d');
+
+    function renderChart() {
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Percentage',
+                    data: dataValues,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+
+    // Add Data Function
+    function addData() {
+        const label = document.getElementById('labelInput').value;
+        const value = parseFloat(document.getElementById('dataInput').value);
+
+        if (label && value) {
+            labels.push(label);
+            dataValues.push(value);
+
+            // Update Table
+            const tableBody = document.querySelector('#dataTable tbody');
+            const row = `<tr><td>${label}</td><td>${value}%</td></tr>`;
+            tableBody.insertAdjacentHTML('beforeend', row);
+
+            // Clear inputs
+            document.getElementById('labelInput').value = '';
+            document.getElementById('dataInput').value = '';
+
+            renderChart();
+            generateParagraph();
+        } else {
+            alert("Please enter both category and value.");
+        }
+    }
+
+    // Reset Function
+    function resetChart() {
+        labels = [];
+        dataValues = [];
+        document.querySelector('#dataTable tbody').innerHTML = '';
+        document.getElementById('paragraph-output').innerText = 'Add data to see the generated paragraph here...';
+        if (myChart) myChart.destroy();
+    }
+
+    // HSC Standard Paragraph Generator Logic
+    function generateParagraph() {
+        if (labels.length === 0) return;
+
+        // Find Max and Min for Analysis
+        let maxVal = Math.max(...dataValues);
+        let minVal = Math.min(...dataValues);
+        let maxIndex = dataValues.indexOf(maxVal);
+        let minIndex = dataValues.indexOf(minVal);
+
+        let topic = "selected categories"; // Default topic
+
+        // Introduction
+        let text = `The pie chart illustrates the percentage of ${topic}. A survey has been conducted, and the data is presented in percentage form. <br><br>`;
+
+        // Body Paragraph (Describing Data)
+        text += `According to the chart, the highest percentage is observed in <strong>${labels[maxIndex]}</strong>, which constitutes <strong>${maxVal}%</strong> of the total. On the other hand, the lowest percentage is <strong>${labels[minIndex]}</strong> with only <strong>${minVal}%</strong>. <br><br>`;
+
+        // Describing other data points
+        text += `Analyzing the other sectors, we can see that `;
+        for (let i = 0; i < labels.length; i++) {
+            if (i !== maxIndex && i !== minIndex) {
+                text += `<strong>${labels[i]}</strong> occupies <strong>${dataValues[i]}%</strong>, `;
+            }
+        }
+        
+        // Conclusion
+        text += `In conclusion, it is evident that the majority of the share is held by ${labels[maxIndex]}, while ${labels[minIndex]} remains the least significant sector.`;
+
+        document.getElementById('paragraph-output').innerHTML = text;
+    }
+</script>
+
+</body>
+</html>
